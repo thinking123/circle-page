@@ -1,0 +1,13 @@
+{
+  "plugins":["@babel/plugin-proposal-decorators"],
+  "presets": [
+    [
+      "@babel/preset-react",
+      {
+        "pragma": "dom",
+        "pragmaFrag": "DomFrag",
+        "throwIfNamespace": false
+      }
+    ]
+  ]
+}
