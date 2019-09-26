@@ -31,10 +31,12 @@ class Circle{
 
         this.root = root;
         const {width , height} = root.getBoundingClientRect();
+        this.width = width;
+        this.height = height;
         const radius = Math.min(width , height) - 2;
-        this.secRadius = radius * (3/6.0);
+        this.secRadius = radius * (1/6.0);
         this.minRadius = radius * (2/6.0);
-        this.hourRadius = radius * (1/6.0);
+        this.hourRadius = radius * (3/6.0);
         this.center = {
             x:width/2,
             y:height/2
@@ -74,10 +76,11 @@ class Circle{
     renderCircle(start , end  , r , strokeStyle , lineWidth = 2){
         const {x , y} = this.center;
         const c = this.ctx;
+        const offset = this.degreeToRadian(-90);
         c.beginPath();
         c.lineWidth = lineWidth;
         c.strokeStyle = strokeStyle;
-        c.arc(x , y , r , start , end);
+        c.arc(x , y , r , offset + start , offset + end);
         c.stroke();
         c.closePath();
     }
@@ -91,12 +94,33 @@ class Circle{
 
         this.renderTime();
     }
+    twoBits(b){
+        if(b < 10){
+            return `0${b}`;
+        }
+        return `${b}`;
+        // return `${b > 9 ? b : }`;
+    }
 
+    formatTime([h , m , s]){
+        s = Math.floor(s);
+        return `${this.twoBits(h)}:${this.twoBits(m)}:${this.twoBits(s)}`;
+    }
     renderTime(){
         const {countDown} = this.opts;
         const diff = (new Date().getTime()) - this.start;
 
         const [h , m , s] = this.timeToDate(diff);
+        const strTime = this.formatTime([h , m , s]);
+
+        if(s <= 1000){
+            this.ctx.clearRect(0 , 0 , this.width , this.height);
+        }
+
+        this.ctx.fillText(strTime , this.center.x , this.center.y);
+        this.ctx.textAlign = 'center';
+        this.ctx.font = '48px serif';
+        this.ctx.textBaseline = 'middle';
         this.renderBg();
         this.renderSecond(this.degreeToRadian(6 * s) , this.secRadius);
         this.renderSecond(this.degreeToRadian(6 * h) , this.minRadius);
