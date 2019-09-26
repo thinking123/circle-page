@@ -104,6 +104,8 @@ class Circle{
 
     formatTime([h , m , s]){
         s = Math.floor(s);
+        m = Math.floor(m);
+        h = Math.floor(h);
         return `${this.twoBits(h)}:${this.twoBits(m)}:${this.twoBits(s)}`;
     }
     renderTime(){
@@ -123,8 +125,8 @@ class Circle{
         this.ctx.textBaseline = 'middle';
         this.renderBg();
         this.renderSecond(this.degreeToRadian(6 * s) , this.secRadius);
-        this.renderSecond(this.degreeToRadian(6 * h) , this.minRadius);
-        this.renderSecond(this.degreeToRadian(6 * m) , this.hourRadius);
+        this.renderSecond(this.degreeToRadian(6 * m) , this.minRadius);
+        this.renderSecond(this.degreeToRadian(6 * h) , this.hourRadius);
         if(diff < countDown){
             requestAnimationFrame(this.renderTime.bind(this))
         }
@@ -141,11 +143,17 @@ class Circle{
 
 
     timeToDate(time){
-        const t =Math.floor( time / 1000);
+        // const t =Math.floor( time / 1000);
+        //
+        // const h = Math.floor(t / (60 * 60));
+        // const m = Math.floor((t - h * 60 * 60) / 60);
+        // const s = (time - h * 60 * 60 * 1000 - m * 60 * 1000) / 1000;
 
-        const h = Math.floor(t / (60 * 60));
-        const m = Math.floor((t - h * 60 * 60) / 60);
-        const s = (time - h * 60 * 60 * 1000 - m * 60 * 1000) / 1000;
+        const t = time / 1000;
+
+        const h = t / (60 * 60);
+        const m = (t - Math.floor( h) * 60 * 60) / 60;
+        const s = (time -Math.floor( h) * 60 * 60 * 1000 - Math.floor( m) * 60 * 1000) / 1000;
 
 
         return [h , m , s];
