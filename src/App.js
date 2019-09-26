@@ -1,12 +1,143 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
 
-function mydec(cls) {
-    console.log('cls' , cls)
+
+
+class Circle{
+
+
+    constructor(options){
+        const def = {
+            bgColor:'#FFF',
+            secColor:'#3291a8',
+            minColor:'#3291a8',
+            hourColor:'#3291a8',
+            runColor:'yellow',
+            attached:'body',
+            drawColor:'#22E121',
+            endCb:()=>{console.log('end')},
+            startTime:new Date().getTime(),
+            endTime:new Date().getTime(),
+            curTime:new Date().getTime(),
+            countDown:''
+        }
+
+        this.opts = {...def , ...options};
+
+        let root = document.getElementById(this.opts.attached);
+        if(!root){
+            root = document.body;
+        }
+
+        this.root = root;
+        const {width , height} = root.getBoundingClientRect();
+        const radius = Math.min(width , height) - 2;
+        this.secRadius = radius * (3/6.0);
+        this.minRadius = radius * (2/6.0);
+        this.hourRadius = radius * (1/6.0);
+        this.center = {
+            x:width/2,
+            y:height/2
+        };
+
+        const canvas = document.createElement('canvas');
+        root.appendChild(canvas);
+        canvas.id = this.getId();
+        canvas.width = width;
+        canvas.height = height;
+        canvas.style.zIndex = 100;
+
+        const ctx = canvas.getContext('2d');
+        this.ctx = ctx;
+
+
+        // ctx.beginPath();
+        // ctx.moveTo(this.center.x , this.center.y);
+        // ctx.strokeStyle =
+
+
+
+
+    }
+
+    degreeToRadian(deg){
+        return (Math.PI/180)*deg;
+    }
+    renderBg(){
+        const {x , y} = this.center;
+        const c = this.ctx;
+        const deg360 = this.degreeToRadian(360);
+        this.renderCircle(0 , deg360 , this.secRadius, this.opts.runColor);
+        this.renderCircle(0 , deg360 , this.minRadius, this.opts.runColor);
+        this.renderCircle(0 , deg360 , this.hourRadius, this.opts.hourColor);
+    }
+    renderCircle(start , end  , r , strokeStyle , lineWidth = 2){
+        const {x , y} = this.center;
+        const c = this.ctx;
+        c.beginPath();
+        c.lineWidth = lineWidth;
+        c.strokeStyle = strokeStyle;
+        c.arc(x , y , r , start , end);
+        c.stroke();
+        c.closePath();
+    }
+
+
+    getId(){
+        return 'canvas';
+    }
+    render(){
+        this.start = new Date().getTime();
+
+        this.renderTime();
+    }
+
+    renderTime(){
+        const {countDown} = this.opts;
+        const diff = (new Date().getTime()) - this.start;
+
+        const [h , m , s] = this.timeToDate(diff);
+        this.renderBg();
+        this.renderSecond(this.degreeToRadian(6 * s) , this.secRadius);
+        this.renderSecond(this.degreeToRadian(6 * h) , this.minRadius);
+        this.renderSecond(this.degreeToRadian(6 * m) , this.hourRadius);
+        if(diff < countDown){
+            requestAnimationFrame(this.renderTime.bind(this))
+        }
+    }
+    renderSecond(deg ,r ){
+        // const deg = this.degreeToRadian(6 * s);
+        this.renderCircle(0 , deg , r , this.opts.drawColor , 6);
+    }
+    renderHour(){
+
+    }
+
+
+
+
+    timeToDate(time){
+        const t =Math.floor( time / 1000);
+
+        const h = Math.floor(t / (60 * 60));
+        const m = Math.floor((t - h * 60 * 60) / 60);
+        const s = (time - h * 60 * 60 * 1000 - m * 60 * 1000) / 1000;
+
+
+        return [h , m , s];
+    }
+
+    // render() {
+    //     const {id} = this.props;
+    //     return (
+    //         <canvas id='canvas'>
+    //
+    //         </canvas>
+    //     );
+    // }
 }
 
-@mydec
+
 class MyPage extends React.Component {
     constructor(props) {
         super(props);
@@ -35,8 +166,34 @@ class MyPage extends React.Component {
         this.state.items = [...this.state.items, "ne items"]
     }
 
+    addMinutes(date, minutes) {
+        return new Date(date.getTime() + minutes*60000);
+    }
+    componentDidMount() {
+        let countDown = this.addMinutes(new Date() , 100);
+        countDown = countDown.getTime() - new Date().getTime();
+        this.circle = new Circle(
+            {
+                attached:'rt',
+                countDown
+            }
+        );
+
+        this.circle.render();
+    }
+
     render() {
+        const sty = {
+            width:'500px',
+            height:'800px',
+            border:'1px solid green'
+        }
         return <div>
+
+            <div id='rt' style={sty}>
+
+
+            </div>
             <div>
                 <button onClick={e => this.click()}>click</button>
             </div>
@@ -56,20 +213,6 @@ function App() {
             <div>
                 <MyPage/>
             </div>
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo"/>
-                <p>
-                    Edit <code>src/App.js</code> and save to reload.
-                </p>
-                <a
-                    className="App-link"
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Learn React
-                </a>
-            </header>
         </div>
     );
 }
