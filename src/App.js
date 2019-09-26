@@ -112,6 +112,7 @@ class Circle{
     renderTime(){
         const {countDown} = this.opts;
         let diff = (new Date().getTime()) - this.start;
+        diff = diff* 1000;
         if(this.opts.down){
             diff = countDown - diff;
         }
@@ -136,13 +137,25 @@ class Circle{
         if(this.opts.down){
             if(diff > 0){
                 requestAnimationFrame(this.renderTime.bind(this))
+            }else {
+                this.end()
             }
         }else{
             if(diff < countDown){
                 requestAnimationFrame(this.renderTime.bind(this))
+            }else {
+                this.end()
             }
         }
 
+    }
+    end(){
+        if(this.opts.down){
+            this.ctx.clearRect(0 , 0 , this.width , this.height);
+            this.renderBg();
+        }
+
+        this.opts.endCb();
     }
     renderSecond(deg ,r ){
         // const deg = this.degreeToRadian(6 * s);
@@ -220,8 +233,7 @@ class MyPage extends React.Component {
         this.circle = new Circle(
             {
                 attached:'rt',
-                countDown,
-                down:true
+                countDown
             }
         );
 
