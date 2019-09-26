@@ -19,7 +19,8 @@ class Circle{
             startTime:new Date().getTime(),
             endTime:new Date().getTime(),
             curTime:new Date().getTime(),
-            countDown:''
+            countDown:'',
+            down:false
         }
 
         this.opts = {...def , ...options};
@@ -110,7 +111,12 @@ class Circle{
     }
     renderTime(){
         const {countDown} = this.opts;
-        const diff = (new Date().getTime()) - this.start;
+        let diff = (new Date().getTime()) - this.start;
+        if(this.opts.down){
+            diff = countDown - diff;
+        }
+
+
 
         const [h , m , s] = this.timeToDate(diff);
         const strTime = this.formatTime([h , m , s]);
@@ -127,9 +133,16 @@ class Circle{
         this.renderSecond(this.degreeToRadian(6 * s) , this.secRadius);
         this.renderSecond(this.degreeToRadian(6 * m) , this.minRadius);
         this.renderSecond(this.degreeToRadian(6 * h) , this.hourRadius);
-        if(diff < countDown){
-            requestAnimationFrame(this.renderTime.bind(this))
+        if(this.opts.down){
+            if(diff > 0){
+                requestAnimationFrame(this.renderTime.bind(this))
+            }
+        }else{
+            if(diff < countDown){
+                requestAnimationFrame(this.renderTime.bind(this))
+            }
         }
+
     }
     renderSecond(deg ,r ){
         // const deg = this.degreeToRadian(6 * s);
@@ -207,7 +220,8 @@ class MyPage extends React.Component {
         this.circle = new Circle(
             {
                 attached:'rt',
-                countDown
+                countDown,
+                down:true
             }
         );
 
